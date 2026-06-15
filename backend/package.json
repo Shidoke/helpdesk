@@ -1,0 +1,32 @@
+{
+  "name": "helpdesk-system",
+  "version": "1.0.0",
+  "description": "HelpDesk система с Telegram-ботом для дипломной работы",
+  "main": "server-with-bot.js",
+  "scripts": {
+    "start": "node server-with-bot.js",
+    "dev": "nodemon server-with-bot.js",
+    "db:init": "node utils/init-db-auth.js",
+    "db:check": "node utils/check-users.js",
+    "test": "node tests/test-all.js",
+    "test:db": "node tests/test-pg-connection.js"
+  },
+  "keywords": ["helpdesk", "telegram-bot", "diploma"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.1.4",
+    "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "node-telegram-bot-api": "^0.66.0",
+    "pg": "^8.11.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}

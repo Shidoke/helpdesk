@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HelpDesk Pro | Панель управления обращениями</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* полный сброс для будущей работы */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #f0f2f5;
+      min-height: 100vh;
+    }
+
+    /* Header дэшборда */
+    .helpdesk-header {
+      background: #1e2b4f;
+      color: white;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .helpdesk-logo { 
+      font-size: 1.5rem; 
+      font-weight: bold; 
+      display: flex; 
+      align-items: center; 
+      gap: 0.5rem; 
+    }
+
+    /* место с информацией о подключенном юзере */
+    .user-menu { display: flex; align-items: center; gap: 1.5rem; }
+    .user-info { display: flex; align-items: center; gap: 0.5rem; }
+    
+    .user-avatar-circle { 
+      width: 35px; 
+      height: 35px; 
+      background: #4a6fa5; 
+      border-radius: 50%; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      font-weight: bold; 
+    }
+
+    .user-role-indicator { 
+      padding: 0.2rem 0.6rem; 
+      border-radius: 12px; 
+      font-size: 0.75rem; 
+      font-weight: 600; 
+    }
+    .role-admin { background: #ffd700; color: #333; }
+    .role-agent { background: #4caf50; color: white; }
+    .role-user { background: #2196f3; color: white; }
+
+    .logout-action-btn { 
+      padding: 0.5rem 1.2rem; 
+      background: #e74c3c; 
+      color: white; 
+      border: none; 
+      border-radius: 8px; 
+      cursor: pointer; 
+      transition: background 0.2s;
+    }
+
+    .logout-action-btn:hover { background: #c0392b; }
+
+    /* основной контейнер */
+    .dashboard-container { max-width: 1400px; margin: 2rem auto; padding: 0 1.5rem; }
+
+    /* виджеты со статистикой */
+    .statistics-panel { 
+      display: grid; 
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); 
+      gap: 1rem; 
+      margin-bottom: 2rem; 
+    }
+    
+    .statistic-item { 
+      background: white; 
+      padding: 1.2rem; 
+      border-radius: 12px; 
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08); 
+      display: flex; 
+      align-items: center; 
+      gap: 0.8rem; 
+      cursor: pointer; 
+      transition: transform 0.2s; 
+    }
+    .statistic-item:hover { transform: translateY(-3px); }
+    
+    .statistic-icon { 
+      width: 40px; 
+      height: 40px; 
+      border-radius: 10px; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      font-size: 1rem; 
+    }
+    /* иконки виджетов */
+    .icon-total { background: #e3f2fd; color: #1976d2; }
+    .icon-open { background: #fff3e0; color: #f57c00; }
+    .icon-pending { background: #fff3e0; color: #f57c00; }
+    .icon-resolved { background: #e8f5e9; color: #388e3c; }
+    
+    .statistic-value { font-size: 1.3rem; font-weight: bold; color: #1e2b4f; }
+    .statistic-label { color: #666; font-size: 0.8rem; }
+
+  
+    .toolbar-panel { 
+      background: white; 
+      padding: 1rem 1.5rem; 
+      border-radius: 12px; 
+      margin-bottom: 1.5rem; 
+      display: flex; 
+      flex-wrap: wrap; 
+      gap: 1rem; 
+      align-items: center; 
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08); 
+    }
+    
+    .search-input-wrapper { 
+      display: flex; 
+      align-items: center; 
+      background: #f5f6fa; 
+      border-radius: 25px; 
+      padding: 0.5rem 1rem; 
+      flex: 1; 
+      min-width: 200px; 
+    }
+    .search-input-wrapper input { 
+      border: none; 
+      background: transparent; 
+      padding: 0.4rem; 
+      margin-left: 0.5rem; 
+      font-size: 0.9rem; 
+      width: 100%; 
+      outline: none; 
+    }
+    
+    .filter-dropdown { 
+      padding: 0.6rem 1rem; 
+      border: 1px solid #d0d7e2; 
+      border-radius: 25px; 
+      font-size: 0.9rem; 
+      outline: none; 
+      cursor: pointer;
+    }
+    
+    .action-button { 
+      padding: 0.6rem 1.5rem; 
+      border: none; 
+      border-radius: 25px; 
+      font-weight: 600; 
+      font-size: 0.9rem; 
+      cursor: pointer; 
+      transition: all 0.3s; 
+      display: flex; 
+      align-items: center; 
+      gap: 0.5rem; 
+    }
+    .btn-create-ticket { background: #1e2b4f; color: white; }
+    .btn-create-ticket:hover { background: #16223f; }
+    .btn-show-audit-log { background: white; color: #1e2b4f; border: 2px solid #1e2b4f; }
+    .btn-show-audit-log:hover { background: #f0f2f5; }
+
+    /* таблциа с тикетами */
+    .tickets-table-wrapper { 
+      background: white; 
+      border-radius: 12px; 
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08); 
+      overflow-x: auto; 
+    }
+    
+    .tickets-data-table { width: 100%; border-collapse: collapse; min-width: 1100px; }
+    
+    .tickets-data-table thead th { 
+      background: #f8f9fc; 
+      padding: 0.8rem; 
+      text-align: left; 
+      font-weight: 600; 
+      color: #4a5568; 
+      font-size: 0.8rem; 
+      text-transform: uppercase; 
+      border-bottom: 2px solid #e9edf4; 
+      white-space: nowrap; 
+    }
+    
+    .tickets-data-table tbody td { 
+      padding: 0.8rem; 
+      border-bottom: 1px solid #f0f3f8; 
+      color: #2d3748; 
+      font-size: 0.9rem; 
+    }
+    .tickets-data-table tbody tr:hover { background: #f8faff; cursor: pointer; }
+    
+    /* Номер заявки */
+    .ticket-number-badge { 
+      background: #f0f3f8; 
+      padding: 0.2rem 0.5rem; 
+      border-radius: 12px; 
+      font-weight: 600; 
+      font-size: 0.8rem; 
+      white-space: nowrap; 
+    }
+    
+    /* Индикатор статуса */
+    .status-indicator { 
+      padding: 0.25rem 0.6rem; 
+      border-radius: 15px; 
+      font-weight: 600; 
+      font-size: 0.75rem; 
+      white-space: nowrap; 
+    }
+    .status-Open { background: #e3f2fd; color: #1976d2; }
+    .status-Pending { background: #fff3e0; color: #f57c00; }
+    .status-Resolved { background: #e8f5e9; color: #388e3c; }
+    .status-Closed { background: #f5f5f5; color: #616161; }
+    
+    /* Приоритет */
+    .priority-High { color: #d32f2f; font-weight: bold; }
+    .priority-Medium { color: #f57c00; }
+    .priority-Low { color: #388e3c; }
+    .priority-Critical { color: #b71c1c; font-weight: bold; }
+    
+    /* Кнопки действий */
+    .ticket-actions { display: flex; gap: 0.3rem; }
+    .ticket-actions i { 
+      cursor: pointer; 
+      padding: 0.3rem; 
+      border-radius: 6px; 
+      color: #718096; 
+      transition: all 0.2s;
+    }
+    .ticket-actions i:hover { background: #e9edf4; color: #1e2b4f; }
+    
+    /* Описание (раскрывающееся) */
+    .description-preview { 
+      max-width: 200px; 
+      white-space: nowrap; 
+      overflow: hidden; 
+      text-overflow: ellipsis; 
+      cursor: pointer; 
+      padding: 0.25rem 0; 
+    }
+    .description-preview.expanded { 
+      max-width: none; 
+      white-space: normal; 
+      overflow: visible; 
+      background: #f0f4ff; 
+      padding: 0.5rem; 
+      border-radius: 8px; 
+    }
+
+    .modal-overlay { 
+      display: none; 
+      position: fixed; 
+      top: 0; 
+      left: 0; 
+      width: 100%; 
+      height: 100%; 
+      background: rgba(0,0,0,0.5); 
+      justify-content: center; 
+      align-items: center; 
+      z-index: 1000; 
+    }
+    .modal-overlay.active { display: flex; }
+    
+    .modal-dialog { 
+      background: white; 
+      border-radius: 16px; 
+      padding: 2rem; 
+      max-width: 700px; 
+      width: 90%; 
+      max-height: 80vh; 
+      overflow-y: auto; 
+    }
+    .modal-dialog h2 { margin-bottom: 1rem; color: #1e2b4f; }
+    
+    /* Поля формы */
+    .form-field { margin-bottom: 1rem; }
+    .form-field label { 
+      display: block; 
+      margin-bottom: 0.5rem; 
+      font-weight: 600; 
+      font-size: 0.9rem; 
+      color: #2d3748;
+    }
+    .form-field input, 
+    .form-field select, 
+    .form-field textarea { 
+      width: 100%; 
+      padding: 0.75rem; 
+      border: 1px solid #d0d7e2; 
+      border-radius: 10px; 
+      font-size: 0.9rem; 
+      font-family: inherit; 
+      transition: border-color 0.3s;
+    }
+    .form-field input:focus, 
+    .form-field textarea:focus, 
+    .form-field select:focus {
+      outline: none;
+      border-color: #4a6fa5;
+      box-shadow: 0 0 0 3px rgba(74,111,165,0.1);
+    }
+    
+    .form-actions-row { display: flex; gap: 1rem; margin-top: 1rem; }
+
+    /* область с чатом для взаимодействия с пользователем */
+    .chat-thread { 
+      border: 1px solid #e9edf4; 
+      border-radius: 12px; 
+      margin: 1rem 0; 
+      max-height: 300px; 
+      overflow-y: auto; 
+    }
+    
+    .chat-message-item { padding: 0.8rem; border-bottom: 1px solid #f0f3f8; }
+    .chat-message-item:last-child { border-bottom: none; }
+    
+    .chat-author-name { font-weight: 600; font-size: 0.85rem; }
+    .chat-author-name.agent { color: #4caf50; }
+    .chat-author-name.admin { color: #ffd700; }
+    .chat-author-name.user { color: #2196f3; }
+    
+    .chat-timestamp { font-size: 0.7rem; color: #a0aec0; margin-left: 0.5rem; }
+    .chat-message-text { margin-top: 0.3rem; font-size: 0.9rem; color: #2d3748; }
+    
+    .chat-compose-area { display: flex; gap: 0.5rem; margin-top: 1rem; }
+    .chat-compose-area input { 
+      flex: 1; 
+      padding: 0.7rem; 
+      border: 1px solid #d0d7e2; 
+      border-radius: 25px; 
+      font-size: 0.9rem; 
+    }
+    .chat-compose-area button { 
+      padding: 0.7rem 1.5rem; 
+      background: #1e2b4f; 
+      color: white; 
+      border: none; 
+      border-radius: 25px; 
+      cursor: pointer; 
+    }
+
+    /* === ЗАПИСЬ В ЖУРНАЛЕ АУДИТА === */
+    .audit-log-entry { 
+      padding: 0.7rem; 
+      border-bottom: 1px solid #eee; 
+    }
+    .audit-log-user { font-weight: 600; color: #1e2b4f; }
+    .audit-log-action { color: #2d3748; }
+    .audit-log-details { color: #666; font-size: 0.85rem; }
+    .audit-log-time { color: #aaa; font-size: 0.75rem; }
+
+    /* уведомления */
+    .toast-notification { 
+      position: fixed; 
+      bottom: 2rem; 
+      right: 2rem; 
+      padding: 1rem 1.5rem; 
+      border-radius: 10px; 
+      color: white; 
+      font-weight: 500; 
+      z-index: 9999; 
+      animation: slideInRight 0.3s ease;
+    } 
+    @keyframes slideInRight {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    .toast-success { background: #48bb78; }
+    .toast-error { background: #fc8181; }
+
+
+    .empty-state-placeholder { text-align: center; padding: 3rem; color: #a0aec0; }
+    .empty-state-placeholder i { font-size: 3rem; margin-bottom: 1rem; display: block; }
+    
+    /* для скрытия элементов, которые не должны отображаться для определенных ролей */
+    .visually-hidden { display: none; }
+  </style>
+</head>
+<body>
+
+  <!-- header сайта  -->
+  <header class="helpdesk-header">
+    <div class="helpdesk-logo">
+      <i class="fas fa-headset"></i>
+      HelpDesk
+    </div>
+    <div class="user-menu">
+      <div class="user-info">
+        <div class="user-avatar-circle" id="currentUserAvatar">?</div>
+        <div>
+          <div id="currentUserName" style="font-weight:600;">Загрузка...</div>
+          <span class="user-role-indicator" id="currentUserRole"></span>
+        </div>
+      </div>
+      <!-- Кнопка журнала аудита (только для администратора) -->
+      <button class="action-button btn-show-audit-log visually-hidden" id="auditLogButton" onclick="fetchAndDisplayAuditLog()">
+        <i class="fas fa-history"></i> Журнал
+      </button>
+      <button class="logout-action-btn" onclick="performLogout()">
+        <i class="fas fa-sign-out-alt"></i> Выйти
+      </button>
+    </div>
+  </header>
+
+  <!-- основная страница -->
+  <div class="dashboard-container">
+
+    <!-- Статистика -->
+    <div class="statistics-panel">
+      <div class="statistic-item" onclick="applyQuickFilter('')">
+        <div class="statistic-icon icon-total"><i class="fas fa-ticket-alt"></i></div>
+        <div>
+          <div class="statistic-value" id="statTotalTickets">0</div>
+          <div class="statistic-label">Всего обращений</div>
+        </div>
+      </div>
+      <div class="statistic-item" onclick="applyQuickFilter('Open')">
+        <div class="statistic-icon icon-open"><i class="fas fa-clock"></i></div>
+        <div>
+          <div class="statistic-value" id="statOpenTickets">0</div>
+          <div class="statistic-label">Открытых</div>
+        </div>
+      </div>
+      <div class="statistic-item" onclick="applyQuickFilter('Pending')">
+        <div class="statistic-icon icon-pending"><i class="fas fa-hourglass-half"></i></div>
+        <div>
+          <div class="statistic-value" id="statPendingTickets">0</div>
+          <div class="statistic-label">В ожидании</div>
+        </div>
+      </div>
+      <div class="statistic-item" onclick="applyQuickFilter('Resolved')">
+        <div class="statistic-icon icon-resolved"><i class="fas fa-check-circle"></i></div>
+        <div>
+          <div class="statistic-value" id="statResolvedTickets">0</div>
+          <div class="statistic-label">Решено</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Панель инструментов -->
+    <div class="toolbar-panel">
+      <div class="search-input-wrapper">
+        <i class="fas fa-search" style="color:#a0aec0;"></i>
+        <input type="text" placeholder="Поиск по обращениям..." id="ticketSearchInput">
+      </div>
+      <select class="filter-dropdown" id="statusFilterDropdown">
+        <option value="">Все статусы</option>
+        <option value="Open">Открытые</option>
+        <option value="Pending">В ожидании</option>
+        <option value="Resolved">Решенные</option>
+        <option value="Closed">Закрытые</option>
+      </select>
+      <select class="filter-dropdown" id="priorityFilterDropdown">
+        <option value="">Все приоритеты</option>
+        <option value="High">Высокий</option>
+        <option value="Medium">Средний</option>
+        <option value="Low">Низкий</option>
+      </select>
+      <button class="action-button btn-create-ticket" onclick="showTicketCreationForm()">
+        <i class="fas fa-plus"></i> Новое обращение!
+      </button>
+    </div>
+
+    <!-- Таблица обращений -->
+    <div class="tickets-table-wrapper">
+      <table class="tickets-data-table">
+        <thead>
+          <tr>
+            <th>Номер</th>
+            <th>Тема обращения</th>
+            <th>Описание</th>
+            <th>Заявитель</th>
+            <th>Приоритет</th>
+            <th>Статус</th>
+            <th>Исполнитель</th>
+            <th>Создано</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="ticketsTableBody">
+          <tr>
+            <td colspan="9">
+              <div class="empty-state-placeholder">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Загрузка обращений...</p>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ========== МОДАЛЬНОЕ ОКНО ПРОСМОТРА ОБРАЩЕНИЯ ========== -->
+  <div class="modal-overlay" id="ticketDetailModal">
+    <div class="modal-dialog">
+      <h2 id="ticketDetailTitle">Обращение</h2>
+      <div id="ticketDetailInfo"></div>
+      
+      <!-- Чат -->
+      <div class="chat-thread" id="commentThreadContainer">
+        <p style="text-align:center;color:#a0aec0;padding:1rem;">Загрузка комментариев...</p>
+      </div>
+      <div class="chat-compose-area" id="commentComposeArea">
+        <input type="text" id="newCommentInput" placeholder="Введите сообщение...">
+        <button onclick="submitNewComment()"><i class="fas fa-paper-plane"></i></button>
+      </div>
+      
+      <div style="margin-top:1rem; text-align:right;">
+        <button class="action-button" onclick="closeModalWindow('ticketDetailModal')">Закрыть</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== МОДАЛЬНОЕ ОКНО СОЗДАНИЯ/РЕДАКТИРОВАНИЯ ========== -->
+  <div class="modal-overlay" id="ticketFormModal">
+    <div class="modal-dialog">
+      <h2 id="ticketFormTitle"><i class="fas fa-plus-circle"></i> Новое обращение</h2>
+      <form id="ticketDataForm">
+        <div class="form-field">
+          <label>Тема обращения <span style="color:#e53e3e;">*</span></label>
+          <input type="text" id="ticketSubjectField" required maxlength="200" placeholder="Кратко опишите проблему">
+        </div>
+        <div class="form-field">
+          <label>Описание проблемы <span style="color:#e53e3e;">*</span></label>
+          <textarea id="ticketDescriptionField" rows="4" required maxlength="2000" placeholder="Подробное описание"></textarea>
+        </div>
+        <div class="form-field">
+          <label>Приоритет</label>
+          <select id="ticketPriorityField">
+            <option value="Medium">Средний</option>
+            <option value="Low">Низкий</option>
+            <option value="High">Высокий</option>
+            <option value="Critical">Критический</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Категория</label>
+          <select id="ticketCategoryField">
+            <option value="Other">Другое</option>
+            <option value="Hardware">Оборудование</option>
+            <option value="Software">Программное обеспечение</option>
+            <option value="Network">Сеть</option>
+            <option value="Account">Учетная запись</option>
+          </select>
+        </div>
+        <!-- Поля для редактирования (скрыты при создании) -->
+        <div class="form-field visually-hidden" id="ticketStatusFieldGroup">
+          <label>Статус обращения</label>
+          <select id="ticketStatusField">
+            <option value="Open">Открыто</option>
+            <option value="Pending">В ожидании</option>
+            <option value="Resolved">Решено</option>
+            <option value="Closed">Закрыто</option>
+          </select>
+        </div>
+        <div class="form-field visually-hidden" id="assigneeFieldGroup">
+          <label>Назначить исполнителя</label>
+          <select id="assigneeSelectField">
+            <option value="">Не назначен</option>
+          </select>
+        </div>
+        <div class="form-actions-row">
+          <button type="submit" class="action-button btn-create-ticket" id="submitFormButton">Создать</button>
+          <button type="button" class="action-button" onclick="closeModalWindow('ticketFormModal')">Отмена</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+   
+    // КОНФИГУРАЦИЯ И ИНИЦИАЛИЗАЦИЯ
+  
+    const HELPdesk_API_BASE = 'http://localhost:5000/api';
+    const authAccessToken = localStorage.getItem('accessToken');
+    const currentSessionUser = JSON.parse(localStorage.getItem('user') || '{}');
+    
+    // Переменные для отслеживания состояния UI
+    let ticketBeingEditedId = null;
+    let ticketBeingViewedId = null;
+
+    // Проверка авторизации: без токена — на страницу входа
+    if (!authAccessToken) {
+      window.location.href = 'login.html';
+    }
+
+
+    // инициализация интерфейса после загрузки страницы
+  
+    function initializeUserInterface() {
+      document.getElementById('currentUserName').textContent = currentSessionUser.name || 'Пользователь';
+      document.getElementById('currentUserAvatar').textContent = (currentSessionUser.name || '?')[0].toUpperCase();
+      
+      const roleBadge = document.getElementById('currentUserRole');
+      const roleLabels = { admin: 'Администратор', agent: 'Оператор', user: 'Пользователь' };
+      roleBadge.textContent = roleLabels[currentSessionUser.role] || currentSessionUser.role;
+      roleBadge.className = 'user-role-indicator role-' + currentSessionUser.role;
+
+      // Кнопка аудита только для администратора
+      if (currentSessionUser.role === 'admin') {
+        document.getElementById('auditLogButton').classList.remove('visually-hidden');
+      }
+    }
+
+
+    
+   // Загрузка обращений с сервера с учетом фильтров и отображений в таблицах
+    async function fetchAndDisplayTickets(statusFilterValue = '') {
+      try {
+        const queryParameters = new URLSearchParams();
+        const searchQuery = document.getElementById('ticketSearchInput').value;
+        const statusFilter = statusFilterValue || document.getElementById('statusFilterDropdown').value;
+        const priorityFilter = document.getElementById('priorityFilterDropdown').value;
+      
+        if (searchQuery) queryParameters.append('search', searchQuery);
+        if (statusFilter) queryParameters.append('status', statusFilter);
+        if (priorityFilter) queryParameters.append('priority', priorityFilter);
+        
+        const response = await fetch(`${HELPdesk_API_BASE}/tickets?${queryParameters}`, {
+          headers: { 'Authorization': `Bearer ${authAccessToken}` }
+        });
+      
+        const ticketsList = await response.json();
+        renderTicketsTable(ticketsList);
+        updateStatisticsPanel(ticketsList);
+      } catch (error) {
+        console.error('Ошибка загрузки обращений:', error);
+      }
+    }
+
+    /**
+     * Отрисовывает таблицу обращений
+     * @param {Array} ticketsList - массив объектов обращений
+     */
+    function renderTicketsTable(ticketsList) {
+      const tableBody = document.getElementById('ticketsTableBody');
+      
+      if (!ticketsList.length) {
+        tableBody.innerHTML = `
+          <tr>
+            <td colspan="9">
+              <div class="empty-state-placeholder">
+                <i class="fas fa-inbox"></i>
+                <p>Обращений не найдено</p>
+              </div>
+            </td>
+          </tr>`;
+        return;
+      }
+      
+      tableBody.innerHTML = ticketsList.map(ticket => {
+        // Формируем кнопки действий в зависимости от роли
+        let actionButtons = `
+          <i class="fas fa-eye" title="Просмотр" onclick="openTicketDetailView(${ticket.id})"></i>`;
+        
+        if (currentSessionUser.role === 'agent' || currentSessionUser.role === 'admin') {
+          actionButtons += `
+            <i class="fas fa-edit" title="Редактировать" onclick="openTicketEditForm(${ticket.id}, '${escapeForAttribute(ticket.status)}', '${escapeForAttribute(ticket.priority)}', '${escapeForAttribute(ticket.assignee_email || '')}', '${escapeForAttribute(ticket.subject)}', '${escapeForAttribute(ticket.description || '')}')"></i>`;
+        }
+        
+        if (currentSessionUser.role === 'admin') {
+          actionButtons += `
+            <i class="fas fa-trash" title="Удалить" onclick="deleteTicketById(${ticket.id})"></i>`;
+        }
+        
+        return `
+          <tr>
+            <td><span class="ticket-number-badge">${ticket.ticket_number}</span></td>
+            <td><strong>${escapeHtml(ticket.subject)}</strong></td>
+            <td>
+              <div class="description-preview" onclick="toggleDescriptionExpansion(this)">${escapeHtml(ticket.description || '—')}</div>
+            </td>
+            <td>${escapeHtml(ticket.requester_name || '—')}</td>
+            <td class="priority-${ticket.priority}">${formatPriorityLabel(ticket.priority)}</td>
+            <td><span class="status-indicator status-${ticket.status}">${formatStatusLabel(ticket.status)}</span></td>
+            <td>${escapeHtml(ticket.assignee_name || 'Не назначен')}</td>
+            <td style="white-space:nowrap;">${new Date(ticket.created_at).toLocaleDateString('ru-RU')}</td>
+            <td><div class="ticket-actions">${actionButtons}</div></td>
+          </tr>`;
+      }).join('');
+    }
+
+    /** Переключает раскрытие/сворачивание описания */
+    function toggleDescriptionExpansion(element) {
+      element.classList.toggle('expanded');
+    }
+
+    /** Форматирует приоритет для отображения */
+    function formatPriorityLabel(priority) {
+      const labels = { Critical: 'Критический', High: 'Высокий', Medium: 'Средний', Low: 'Низкий' };
+      return labels[priority] || priority;
+    }
+
+    /** Форматирует статус для отображения */
+    function formatStatusLabel(status) {
+      const labels = { Open: 'Открыто', Pending: 'В ожидании', Resolved: 'Решено', Closed: 'Закрыто' };
+      return labels[status] || status;
+    }
+
+    /** Обновляет карточки статистики */
+    function updateStatisticsPanel(ticketsList) {
+      document.getElementById('statTotalTickets').textContent = ticketsList.length;
+      document.getElementById('statOpenTickets').textContent = ticketsList.filter(t => t.status === 'Open').length;
+      document.getElementById('statPendingTickets').textContent = ticketsList.filter(t => t.status === 'Pending').length;
+      document.getElementById('statResolvedTickets').textContent = ticketsList.filter(t => t.status === 'Resolved' || t.status === 'Closed').length;
+    }
+
+    /** Быстрый фильтр по статусу (клик по карточке статистики) */
+    function applyQuickFilter(status) {
+      document.getElementById('statusFilterDropdown').value = status;
+      fetchAndDisplayTickets(status);
+    }
+
+
+    // ДЕТАЛЬНЫЙ ПРОСМОТР ОБРАЩЕНИЯ С КОММЕНТАРИЯМИ
+ 
+    
+    async function openTicketDetailView(ticketId) {
+      ticketBeingViewedId = ticketId;
+      document.getElementById('ticketDetailModal').classList.add('active');
+      document.getElementById('commentThreadContainer').innerHTML = '<p style="text-align:center;color:#a0aec0;padding:1rem;">Загрузка...</p>';
+      document.getElementById('commentComposeArea').style.display = 'flex';
+      
+      try {
+        // Загружаем информацию о тикете
+        const ticketResponse = await fetch(`${HELPdesk_API_BASE}/tickets?search=${ticketId}`, {
+          headers: { 'Authorization': `Bearer ${authAccessToken}` }
+        });
+        const tickets = await ticketResponse.json();
+        const ticket = tickets.find(t => t.id === ticketId);
+        
+        if (ticket) {
+          document.getElementById('ticketDetailTitle').textContent = `Обращение #${ticket.ticket_number}`;
+          document.getElementById('ticketDetailInfo').innerHTML = `
+            <p><strong>Тема:</strong> ${escapeHtml(ticket.subject)}</p>
+            <p><strong>Описание:</strong> ${escapeHtml(ticket.description || '—')}</p>
+            <p>
+              <strong>Статус:</strong> <span class="status-indicator status-${ticket.status}">${formatStatusLabel(ticket.status)}</span>
+              <strong>Приоритет:</strong> ${formatPriorityLabel(ticket.priority)}
+              <strong>Заявитель:</strong> ${escapeHtml(ticket.requester_name)}
+            </p>
+            <hr style="margin:0.5rem 0;">
+          `;
+        }
+        
+        loadCommentsForTicket(ticketId);
+      } catch (error) {
+        console.error('Ошибка:', error);
+      }
+    }
+
+    /** Загружает комментарии к обращению */
+    async function loadCommentsForTicket(ticketId) {
+      try {
+        const response = await fetch(`${HELPdesk_API_BASE}/tickets/${ticketId}/comments`, {
+          headers: { 'Authorization': `Bearer ${authAccessToken}` }
+        });
+        const comments = await response.json();
+        
+        const chatContainer = document.getElementById('commentThreadContainer');
+        
+        if (!comments.length) {
+          chatContainer.innerHTML = '<p style="text-align:center;color:#a0aec0;padding:1rem;">Комментариев пока нет. Начните обсуждение.</p>';
+          return;
+        }
+        
+        chatContainer.innerHTML = comments.map(comment => `
+          <div class="chat-message-item">
+            <span class="chat-author-name ${comment.author_role}">${escapeHtml(comment.author_name)}</span>
+            <span class="chat-timestamp">${new Date(comment.created_at).toLocaleString('ru-RU')}</span>
+            <div class="chat-message-text">${escapeHtml(comment.text)}</div>
+          </div>
+        `).join('');
+        
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      } catch (error) {
+        console.error('Ошибка загрузки комментариев:', error);
+      }
+    }
+
+    /** Отправляет новый комментарий */
+    async function submitNewComment() {
+      const inputField = document.getElementById('newCommentInput');
+      const messageText = inputField.value.trim();
+      
+      if (!messageText || !ticketBeingViewedId) return;
+      
+      try {
+        const response = await fetch(`${HELPdesk_API_BASE}/tickets/${ticketBeingViewedId}/comments`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authAccessToken}`
+          },
+          body: JSON.stringify({ text: messageText })
+        });
+        
+        if (response.ok) {
+          inputField.value = '';
+          loadCommentsForTicket(ticketBeingViewedId);
+          fetchAndDisplayTickets(); // Обновляем таблицу (мог измениться статус)
+        }
+      } catch (error) {
+        console.error('Ошибка отправки комментария:', error);
+      }
+    }
+
+  
+    // СОЗДАНИЕ И РЕДАКТИРОВАНИЕ ОБРАЩЕНИЙ
+    
+    
+    /** Открывает форму создания нового обращения */
+    function showTicketCreationForm() {
+      ticketBeingEditedId = null;
+      document.getElementById('ticketFormTitle').innerHTML = '<i class="fas fa-plus-circle"></i> Новое обращение';
+      document.getElementById('submitFormButton').textContent = 'Создать';
+      document.getElementById('ticketStatusFieldGroup').classList.add('visually-hidden');
+      document.getElementById('assigneeFieldGroup').classList.add('visually-hidden');
+      document.getElementById('ticketDataForm').reset();
+      document.getElementById('ticketFormModal').classList.add('active');
+    }
+
+    /** Открывает форму редактирования существующего обращения */
+    async function openTicketEditForm(ticketId, status, priority, assigneeEmail, subject, description) {
+      ticketBeingEditedId = ticketId;
+      document.getElementById('ticketFormTitle').innerHTML = '<i class="fas fa-edit"></i> Редактировать обращение';
+      document.getElementById('submitFormButton').textContent = 'Сохранить изменения';
+      document.getElementById('ticketStatusFieldGroup').classList.remove('visually-hidden');
+      document.getElementById('assigneeFieldGroup').classList.remove('visually-hidden');
+      
+      // Заполняем поля формы
+      document.getElementById('ticketSubjectField').value = subject || '';
+      document.getElementById('ticketDescriptionField').value = description || '';
+      document.getElementById('ticketStatusField').value = status;
+      document.getElementById('ticketPriorityField').value = priority || 'Medium';
+      
+      // Загружаем список агентов для назначения исполнителя
+      const response = await fetch(`${HELPdesk_API_BASE}/auth/users?role=agent`, {
+        headers: { 'Authorization': `Bearer ${authAccessToken}` }
+      });
+      const agentUsers = await response.json();
+      
+      document.getElementById('assigneeSelectField').innerHTML = 
+        '<option value="">Не назначен</option>' + 
+        agentUsers.map(user => 
+          `<option value="${user.email}" ${user.email === assigneeEmail ? 'selected' : ''}>${user.name}</option>`
+        ).join('');
+      
+      document.getElementById('ticketFormModal').classList.add('active');
+    }
+
+    /** Обработчик отправки формы (создание ИЛИ редактирование) */
+    document.getElementById('ticketDataForm').addEventListener('submit', async function(event) {
+      event.preventDefault();
+      
+      try {
+        if (ticketBeingEditedId) {
+          // Редактирование: отправляем все изменяемые поля
+          const updatePayload = {
+            subject: document.getElementById('ticketSubjectField').value,
+            description: document.getElementById('ticketDescriptionField').value,
+            status: document.getElementById('ticketStatusField').value,
+            priority: document.getElementById('ticketPriorityField').value,
+            assignee_email: document.getElementById('assigneeSelectField').value || ''
+          };
+          
+          const response = await fetch(`${HELPdesk_API_BASE}/tickets/${ticketBeingEditedId}`, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${authAccessToken}`
+            },
+            body: JSON.stringify(updatePayload)
+          });
+          
+          if (response.ok) showToastMessage('✅ Обращение обновлено', 'success');
+        } else {
+          // Создание нового обращения
+          const response = await fetch(`${HELPdesk_API_BASE}/tickets`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${authAccessToken}`
+            },
+            body: JSON.stringify({
+              subject: document.getElementById('ticketSubjectField').value,
+              description: document.getElementById('ticketDescriptionField').value,
+              priority: document.getElementById('ticketPriorityField').value,
+              category: document.getElementById('ticketCategoryField').value
+            })
+          });
+          
+          if (response.ok) showToastMessage('✅ Обращение создано', 'success');
+        }
+        
+        closeModalWindow('ticketFormModal');
+        fetchAndDisplayTickets();
+      } catch (error) {
+        showToastMessage('❌ Ошибка при сохранении', 'error');
+      }
+    });
+
+  
+    // УДАЛЕНИЕ ОБРАЩЕНИЯ (ТОЛЬКО АДМИНИСТРАТОР)
+    
+    
+    async function deleteTicketById(ticketId) {
+      if (!confirm('Вы уверены, что хотите удалить это обращение? Действие необратимо.')) return;
+      
+      try {
+        await fetch(`${HELPdesk_API_BASE}/tickets/${ticketId}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${authAccessToken}` }
+        });
+        showToastMessage('🗑️ Обращение удалено', 'success');
+        fetchAndDisplayTickets();
+      } catch (error) {
+        showToastMessage('❌ Ошибка удаления', 'error');
+      }
+    }
+
+    // ЖУРНАЛ АУДИТА (ТОЛЬКО АДМИНИСТРАТОР)
+  
+    async function fetchAndDisplayAuditLog() {
+      try {
+        const response = await fetch(`${HELPdesk_API_BASE}/auth/activity`, {
+          headers: { 'Authorization': `Bearer ${authAccessToken}` }
+        });
+        const auditEntries = await response.json();
+        
+        let htmlContent = '<h2>📋 Журнал действий</h2><div style="max-height:400px;overflow-y:auto;">';
+        
+        if (!auditEntries.length) {
+          htmlContent += '<p style="text-align:center;color:#a0aec0;">Записей не найдено</p>';
+        } else {
+          auditEntries.forEach(entry => {
+            htmlContent += `
+              <div class="audit-log-entry">
+                <span class="audit-log-user">${escapeHtml(entry.user_name)}</span>
+                <span class="audit-log-action">— ${escapeHtml(entry.action)}</span><br>
+                <span class="audit-log-details">${escapeHtml(entry.details || '')}</span><br>
+                <span class="audit-log-time">${new Date(entry.created_at).toLocaleString('ru-RU')}</span>
+              </div>`;
+          });
+        }
+        
+        htmlContent += '</div><br><button class="action-button" onclick="closeModalWindow(\'ticketDetailModal\')">Закрыть</button>';
+        
+        document.getElementById('ticketDetailTitle').textContent = 'Журнал аудита';
+        document.getElementById('ticketDetailInfo').innerHTML = htmlContent;
+        document.getElementById('commentThreadContainer').innerHTML = '';
+        document.getElementById('commentComposeArea').style.display = 'none';
+        document.getElementById('ticketDetailModal').classList.add('active');
+      } catch (error) {
+        showToastMessage('❌ Ошибка загрузки журнала', 'error');
+      }
+    }
+
+    // ================================================================
+    // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+    // ================================================================
+    
+    /** Закрывает модальное окно по ID */
+    function closeModalWindow(modalId) {
+      document.getElementById(modalId).classList.remove('active');
+      if (modalId === 'ticketDetailModal') {
+        document.getElementById('commentComposeArea').style.display = 'flex';
+        ticketBeingViewedId = null;
+        fetchAndDisplayTickets();
+      }
+    }
+
+    /** Показывает всплывающее уведомление */
+    function showToastMessage(message, type) {
+      const toast = document.createElement('div');
+      toast.className = `toast-notification toast-${type}`;
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    /** Экранирует HTML-спецсимволы для безопасного отображения */
+    function escapeHtml(text) {
+      const escapeMap = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;'
+      };
+      return String(text || '').replace(/[&<>"]/g, char => escapeMap[char]);
+    }
+
+    /** Экранирует строку для вставки в атрибут onclick */
+    function escapeForAttribute(text) {
+      return String(text || '')
+        .replace(/\\/g, '\\\\')
+        .replace(/'/g, "\\'")
+        .replace(/"/g, '&quot;')
+        .replace(/\n/g, ' ');
+    }
+
+    // ПРИВЯЗКА СОБЫТИЙ
+    
+    
+    // Отправка комментария по Enter
+    document.getElementById('newCommentInput').addEventListener('keypress', function(event) {
+      if (event.key === 'Enter') submitNewComment();
+    });
+
+    // Закрытие модальных окон по клику на оверлей
+    document.getElementById('ticketFormModal').addEventListener('click', function(event) {
+      if (event.target === event.currentTarget) closeModalWindow('ticketFormModal');
+    });
+    
+    document.getElementById('ticketDetailModal').addEventListener('click', function(event) {
+      if (event.target === event.currentTarget) closeModalWindow('ticketDetailModal');
+    });
+
+    // Поиск с задержкой (debounce)
+    document.getElementById('ticketSearchInput').addEventListener('input', debounceEvent(function() {
+      fetchAndDisplayTickets();
+    }, 300));
+
+    // Фильтры
+    document.getElementById('statusFilterDropdown').addEventListener('change', function() {
+      fetchAndDisplayTickets();
+    });
+    
+    document.getElementById('priorityFilterDropdown').addEventListener('change', function() {
+      fetchAndDisplayTickets();
+    });
+
+    /** Debounce: откладывает выполнение функции до паузы в вызовах */
+    function debounceEvent(fn, delay) {
+      let timeoutId;
+      return function(...args) {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => fn.apply(this, args), delay);
+      };
+    }
+
+    /** Выход из системы */
+    function performLogout() {
+      localStorage.clear();
+      window.location.href = 'login.html';
+    }
+
+    // ЗАПУСК
+
+    initializeUserInterface();
+    fetchAndDisplayTickets();
+  </script>
+</body>
+</html>

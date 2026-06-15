@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HelpDesk - Вход</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .login-container {
+      background: white;
+      padding: 2.5rem;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      width: 100%;
+      max-width: 420px;
+      animation: slideUp 0.5s ease;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .logo {
+      text-align: center;
+      font-size: 3rem;
+      margin-bottom: 0.5rem;
+    }
+
+    h1 {
+      color: #1e2b4f;
+      text-align: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      color: #666;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #333;
+      font-weight: 500;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e1e5ee;
+      border-radius: 10px;
+      font-size: 1rem;
+      transition: all 0.3s;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    button:hover {
+      background: #5a67d8;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .error {
+      color: #e53e3e;
+      text-align: center;
+      margin-top: 1rem;
+      display: none;
+    }
+
+    .demo-accounts {
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px solid #eee;
+    }
+
+    .demo-accounts h3 {
+      font-size: 0.9rem;
+      color: #666;
+      margin-bottom: 0.8rem;
+    }
+
+    .demo-btn {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0;
+      background: #f7f8fc;
+      color:rgb(43, 43, 43);
+      border: 1px solid #e1e5ee;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      text-align: left;
+      transition: all 0.2s;
+    }
+
+    .demo-btn:hover {
+      background: #eef1ff;
+      border-color: #667eea;
+    }
+
+    .demo-btn .role {
+      float: right;
+      color: #667eea;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <h1>HelpDesk</h1>
+    <p class="subtitle">Войдите в систему</p>
+    
+    <form id="loginForm">
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="email" placeholder="admin@helpdesk.com" required>
+      </div>
+      
+      <div class="form-group">
+        <label>Пароль</label>
+        <input type="password" id="password" placeholder="••••••" required>
+      </div>
+      
+      <div class="error" id="error"></div>
+      
+      <button type="submit">Войти</button>
+    </form>
+
+<div style="text-align:center; margin-top:1.5rem; font-size:0.9rem; color:#666;">
+  Нет аккаунта? <a href="register.html" style="color:#667eea; text-decoration:none; font-weight:600;">Зарегистрироваться</a>
+</div>
+
+
+<!-- в данный момент это нужно для просмотра функционала кода. -->
+    <div class="demo-accounts">
+      <h3>Демо аккаунты:</h3>
+      <button class="demo-btn" onclick="quickLogin('admin@helpdesk.com', 'admin123')">
+        👑 Администратор <span class="role">admin</span>
+      </button>
+      <button class="demo-btn" onclick="quickLogin('agent@helpdesk.com', 'agent123')">
+        🛠️ Агент поддержки <span class="role">agent</span>
+      </button>
+      <button class="demo-btn" onclick="quickLogin('user@helpdesk.com', 'user123')">
+        👤 Пользователь <span class="role">user</span>
+      </button>
+    </div>
+  </div>
+
+
+  <script>
+    const API_URL = 'http://localhost:5000/api';
+   // Функция для быстрого входа, чтобы можно было проверить работоспособность системы
+    function quickLogin(email, password) {
+      document.getElementById('email').value = email;
+      document.getElementById('password').value = password;
+      document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      // Получаем данные из формы
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const errorDiv = document.getElementById('error');
+      
+      errorDiv.style.display = 'none';
+      // отправляется запрос на сервер для входа
+      try {
+        const response = await fetch(`${API_URL}/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        
+        const data = await response.json();
+        // при успешном входе сохранятся токены 
+        if (response.ok) {
+          // Сохраняем токены
+          localStorage.setItem('accessToken', data.accessToken);
+          localStorage.setItem('refreshToken', data.refreshToken);
+          localStorage.setItem('user', JSON.stringify(data.user));
+          
+          // Перенаправляем на дашборд
+          window.location.href = 'dashboard.html';
+        } else {
+          errorDiv.style.display = 'block';
+          errorDiv.textContent = (data.error || 'Ошибка входа');
+        }
+      } catch (error) {
+        errorDiv.style.display = 'block';
+        errorDiv.textContent = 'Ошибка соединения. Сервер запущен?';
+      }
+    });
+  </script>
+</body>
+</html>

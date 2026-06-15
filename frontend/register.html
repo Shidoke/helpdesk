@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HelpDesk - Регистрация</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .register-container {
+      background: white;
+      padding: 2.5rem;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      width: 100%;
+      max-width: 450px;
+    }
+
+    .logo {
+      text-align: center;
+      font-size: 3rem;
+      margin-bottom: 0.5rem;
+    }
+
+    h1 {
+      color: #1e2b4f;
+      text-align: center;
+      margin-bottom: 0.5rem;
+      font-size: 1.5rem;
+    }
+
+    .subtitle {
+      color: #666;
+      text-align: center;
+      margin-bottom: 2rem;
+      font-size: 0.9rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.2rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.4rem;
+      color: #333;
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+
+    label .required {
+      color: #e53e3e;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e1e5ee;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      transition: all 0.3s;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .password-hint {
+      font-size: 0.75rem;
+      color: #888;
+      margin-top: 0.3rem;
+    }
+
+    .error {
+      color: #e53e3e;
+      font-size: 0.85rem;
+      margin-top: 0.3rem;
+      display: none;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 12px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 0.5rem;
+    }
+
+    .submit-btn:hover {
+      background: #5a67d8;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .submit-btn:disabled {
+      background: #a0aec0;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .login-link {
+      text-align: center;
+      margin-top: 1.5rem;
+      font-size: 0.9rem;
+      color: #666;
+    }
+
+    .login-link a {
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .login-link a:hover {
+      text-decoration: underline;
+    }
+
+    .success-message {
+      background: #c6f6d5;
+      color: #276749;
+      padding: 1rem;
+      border-radius: 10px;
+      text-align: center;
+      display: none;
+    }
+
+    .success-message.show {
+      display: block;
+    }
+
+    .password-strength {
+      height: 4px;
+      background: #e2e8f0;
+      border-radius: 2px;
+      margin-top: 0.5rem;
+      overflow: hidden;
+    }
+
+    .password-strength-bar {
+      height: 100%;
+      border-radius: 2px;
+      transition: all 0.3s;
+      width: 0%;
+    }
+
+    .strength-weak { background: #fc8181; width: 25%; }
+    .strength-medium { background: #f6ad55; width: 50%; }
+    .strength-good { background: #68d391; width: 75%; }
+    .strength-strong { background: #48bb78; width: 100%; }
+  </style>
+</head>
+<body>
+  <div class="register-container">
+    <h1>HelpDesk</h1>
+    <p class="subtitle">Создание нового аккаунта</p>
+    
+    <div class="success-message" id="successMessage">
+      ✅ Регистрация успешна!<br>
+      <a href="login.html" style="color:#276749; font-weight:600;">Войти в систему</a>
+    </div>
+    
+    <form id="registerForm" style="display:block;">
+      <div class="form-group">
+        <label>Полное имя <span class="required">*</span></label>
+        <input type="text" id="name" placeholder="Иван Иванов" required>
+        <div class="error" id="nameError"></div>
+      </div>
+      
+      <div class="form-group">
+        <label>Email <span class="required">*</span></label>
+        <input type="email" id="email" placeholder="ivan@company.com" required>
+        <div class="error" id="emailError"></div>
+      </div>
+      
+      <div class="form-group">
+        <label>Пароль <span class="required">*</span></label>
+        <input type="password" id="password" placeholder="Минимум 6 символов" required minlength="6">
+        <div class="password-strength"><div class="password-strength-bar" id="passwordStrengthBar"></div></div>
+        <div class="password-hint">Минимум 6 символов, буквы и цифры</div>
+        <div class="error" id="passwordError"></div>
+      </div>
+      
+      <div class="form-group">
+        <label>Подтверждение пароля <span class="required">*</span></label>
+        <input type="password" id="confirmPassword" placeholder="Повторите пароль" required>
+        <div class="error" id="confirmError"></div>
+      </div>
+      
+      <div class="form-group">
+        <label>Отдел</label>
+        <select id="department">
+          <option value="">Выберите отдел</option>
+          <option value="IT">IT</option>
+          <option value="Marketing">Маркетинг</option>
+          <option value="Sales">Продажи</option>
+          <option value="HR">Кадры</option>
+          <option value="Finance">Финансы</option>
+          <option value="General">Общий</option>
+        </select>
+      </div>
+      
+      <button type="submit" class="submit-btn" id="submitBtn">
+        <i class="fas fa-user-plus"></i> Зарегистрироваться
+      </button>
+    </form>
+    
+    <div class="login-link">
+      Уже есть аккаунт? <a href="login.html">Войти</a>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'http://localhost:5000/api';
+
+    // Проверка сложности пароля
+    document.getElementById('password').addEventListener('input', function() {
+      const password = this.value;
+      const bar = document.getElementById('passwordStrengthBar');
+      
+      bar.className = 'password-strength-bar';
+      
+      if (password.length === 0) {
+        bar.style.width = '0%';
+      } else if (password.length < 6) {
+        bar.classList.add('strength-weak');
+      } else if (password.length < 8 || !/[0-9]/.test(password)) {
+        bar.classList.add('strength-medium');
+      } else if (password.length < 10 || !/[A-ZА-Я]/.test(password)) {
+        bar.classList.add('strength-good');
+      } else {
+        bar.classList.add('strength-strong');
+      }
+    });
+
+    // Валидация формы
+    document.getElementById('registerForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      // Сброс ошибок
+      document.querySelectorAll('.error').forEach(el => {
+        el.style.display = 'none';
+        el.textContent = '';
+      });
+      
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+      const department = document.getElementById('department').value;
+      
+      let hasError = false;
+      
+      // Валидация имени
+      if (name.length < 2) {
+        showError('nameError', 'Имя должно содержать минимум 2 символа');
+        hasError = true;
+      }
+      
+      // Валидация email
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        showError('emailError', 'Введите корректный email');
+        hasError = true;
+      }
+      
+      // Валидация пароля
+      if (password.length < 6) {
+        showError('passwordError', 'Пароль должен быть минимум 6 символов');
+        hasError = true;
+      }
+      
+      // Подтверждение пароля
+      if (password !== confirmPassword) {
+        showError('confirmError', 'Пароли не совпадают');
+        hasError = true;
+      }
+      
+      if (hasError) return;
+      
+      // Отправка запроса
+      const submitBtn = document.getElementById('submitBtn');
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Регистрация...';
+      
+      try {
+        const response = await fetch(`${API_URL}/auth/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, password, department })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+          // Успех
+          document.getElementById('registerForm').style.display = 'none';
+          document.getElementById('successMessage').classList.add('show');
+          
+          // Автоматический вход через 2 секунды
+          setTimeout(() => {
+            localStorage.setItem('accessToken', data.accessToken);
+            localStorage.setItem('refreshToken', data.refreshToken);
+            localStorage.setItem('user', JSON.stringify(data.user));
+            window.location.href = 'dashboard.html';
+          }, 2000);
+        } else {
+          // Ошибка от сервера
+          if (data.error.includes('Email')) {
+            showError('emailError', data.error);
+          } else {
+            showError('emailError', data.error);
+          }
+        }
+      } catch (error) {
+        showError('emailError', 'Ошибка соединения. Проверьте, запущен ли сервер.');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-user-plus"></i> Зарегистрироваться';
+      }
+    });
+
+    function showError(id, message) {
+      const el = document.getElementById(id);
+      el.textContent = message;
+      el.style.display = 'block';
+    }
+  </script>
+</body>
+</html>
